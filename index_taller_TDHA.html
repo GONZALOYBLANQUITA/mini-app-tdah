@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini App - Taller para Padres TDAH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-main: #fff7ec;
+      --bg-card: #fff3e0;
+      --primary: #f4a261;
+      --primary-dark: #e76f51;
+      --accent: #e9c46a;
+      --text-main: #3b2f2f;
+      --text-soft: #6a5555;
+      --border-soft: #f1ccb5;
+      --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.06);
+      --radius-lg: 16px;
+      --radius-full: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #ffe8c9 0, #fff7ec 45%, #fffdf8 100%);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      padding: 18px 14px 20px;
+    }
+
+    @media (min-width: 720px) {
+      .app {
+        padding: 24px 26px 26px;
+      }
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(244, 162, 97, 0.12);
+      color: var(--primary-dark);
+      border-radius: var(--radius-full);
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 600;
+      align-self: flex-start;
+    }
+
+    .title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #5b3420;
+    }
+
+    @media (min-width: 720px) {
+      .title {
+        font-size: 1.6rem;
+      }
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .tagline {
+      font-size: 0.9rem;
+      color: #8b4d2c;
+      background: linear-gradient(90deg, #ffe0b2, #ffebc7);
+      padding: 8px 12px;
+      border-radius: 14px;
+      margin-top: 2px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-top: 4px;
+    }
+
+    .meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(233, 196, 106, 0.24);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+    }
+
+    /* Navegación principal */
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .nav button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: #ffe9d6;
+      color: var(--text-soft);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: background 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease,
+        color 0.2s ease;
+      text-align: center;
+    }
+
+    .nav button span {
+      font-size: 1rem;
+    }
+
+    .nav button.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff8ed;
+      box-shadow: 0 5px 10px rgba(231, 111, 81, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .nav button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Secciones */
+    .section {
+      display: none;
+      animation: fadeIn 0.18s ease-out;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 14px 12px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      margin-bottom: 10px;
+    }
+
+    @media (min-width: 720px) {
+      .card {
+        padding: 16px 16px 14px;
+        margin-bottom: 12px;
+      }
+    }
+
+    .card h2 {
+      font-size: 1.02rem;
+      margin-bottom: 6px;
+      color: #5b3420;
+    }
+
+    .card h3 {
+      font-size: 0.95rem;
+      margin: 8px 0 4px;
+      color: #7a4024;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 6px 0 2px;
+    }
+
+    .pill {
+      font-size: 0.76rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(244, 162, 97, 0.15);
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill strong {
+      font-weight: 700;
+      color: #8b4d2c;
+    }
+
+    .list {
+      margin: 4px 0 0;
+      padding-left: 18px;
+      font-size: 0.9rem;
+    }
+
+    .list li {
+      margin-bottom: 4px;
+    }
+
+    .highlight-box {
+      background: rgba(233, 196, 106, 0.18);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.88rem;
+      margin-top: 6px;
+      border: 1px dashed rgba(233, 196, 106, 0.8);
+    }
+
+    .quote {
+      margin-top: 6px;
+      font-size: 0.88rem;
+      font-style: italic;
+      color: #7a4024;
+      padding-left: 12px;
+      border-left: 3px solid var(--primary);
+    }
+
+    /* Acordeón de bloques */
+    .accordion-item {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      margin-bottom: 8px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .accordion-header {
+      width: 100%;
+      text-align: left;
+      padding: 9px 12px;
+      background: rgba(244, 162, 97, 0.18);
+      border: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #5b3420;
+    }
+
+    .accordion-header span.icon {
+      font-size: 1.1rem;
+      margin-right: 6px;
+    }
+
+    .accordion-header small {
+      font-weight: 500;
+      color: var(--text-soft);
+    }
+
+    .accordion-header .chevron {
+      font-size: 0.9rem;
+      transition: transform 0.2s ease;
+    }
+
+    .accordion-item.open .accordion-header .chevron {
+      transform: rotate(90deg);
+    }
+
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      padding: 0 12px;
+      font-size: 0.88rem;
+    }
+
+    .accordion-inner {
+      padding: 8px 0 10px;
+    }
+
+    .badge-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      border-radius: 999px;
+      background: rgba(233, 196, 106, 0.5);
+      padding: 2px 8px;
+      margin-bottom: 4px;
+    }
+
+    .subtle {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      margin-top: 4px;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: 1.1fr 1.2fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .tag {
+      font-size: 0.78rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(244, 162, 97, 0.16);
+      color: #7a4024;
+    }
+
+    /* Compromiso interactivo */
+    .commit-container {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.88rem;
+    }
+
+    .commit-container textarea {
+      width: 100%;
+      min-height: 70px;
+      resize: vertical;
+      border-radius: 12px;
+      border: 1px solid rgba(244, 162, 97, 0.7);
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      background: #fffaf3;
+    }
+
+    .btn-primary {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fffaf3;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 8px rgba(231, 111, 81, 0.5);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      align-self: flex-start;
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 5px rgba(231, 111, 81, 0.55);
+    }
+
+    .saved-note {
+      font-size: 0.8rem;
+      color: #6a5555;
+      margin-top: 2px;
+    }
+
+    .saved-note strong {
+      color: #7a4024;
+    }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 0.78rem;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: rgba(255, 204, 153, 0.6);
+      color: #7a4024;
+    }
+
+    footer {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(244, 162, 97, 0.6);
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    footer strong {
+      color: #7a4024;
+    }
+
+    .credits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .credits span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="badge">
+        <span>👨‍👩‍👧‍👦</span>
+        Taller para Padres · TDAH
+      </div>
+      <div class="title">
+        Comprendiendo y acompañando a mi hijo con TDAH
+      </div>
+      <p class="subtitle">
+        Mini app para padres de niños entre 3 y 12 años. Un apoyo visual para recordar
+        lo esencial del taller y llevar las herramientas a casa.
+      </p>
+      <div class="tagline">
+        “Educar a un niño con TDAH es aprender a mirar el mundo a través de su mente en movimiento.”
+      </div>
+      <div class="meta">
+        <span>⏱️ Duración del taller: 90 min</span>
+        <span>🧠 Enfoque: Neuropsicología infantil y familia</span>
+      </div>
+    </header>
+
+    <!-- Navegación -->
+    <nav class="nav">
+      <button class="active" data-section="resumen">
+        <span>📌</span> Resumen
+      </button>
+      <button data-section="bloques">
+        <span>🧩</span> Bloques
+      </button>
+      <button data-section="herramientas">
+        <span>🏠</span> En casa
+      </button>
+    </nav>
+
+    <!-- Sección 1: Resumen general -->
+    <section id="resumen" class="section active">
+      <div class="card">
+        <h2>Objetivos centrales del taller</h2>
+        <ul class="list">
+          <li>Comprender qué es el TDAH desde una mirada neuropsicológica y emocional.</li>
+          <li>Reconocer los signos y comportamientos típicos según la edad.</li>
+          <li>Aprender estrategias concretas para acompañar en casa.</li>
+          <li>Promover una relación más positiva, empática y segura entre padres e hijos.</li>
+        </ul>
+        <div class="highlight-box">
+          <strong>Idea clave:</strong> El TDAH no es un problema de querer portarse bien, sino de poder hacerlo.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>¿Qué es el TDAH?</h3>
+        <p style="font-size:0.9rem;">
+          Es un trastorno del neurodesarrollo que implica una diferencia en la forma en que el cerebro
+          se desarrolla y funciona. Afecta principalmente:
+        </p>
+        <div class="pill-row">
+          <span class="pill"><strong>Atención</strong> · Mantener el foco</span>
+          <span class="pill"><strong>Impulsos</strong> · Parar antes de actuar</span>
+          <span class="pill"><strong>Actividad</strong> · Regular el movimiento</span>
+          <span class="pill"><strong>Emoción</strong> · Manejar lo que sienten</span>
+        </div>
+        <p class="subtle">
+          No es pereza, ni falta de límites, ni desobediencia deliberada. El cerebro está “en construcción”
+          y necesita apoyo externo.
+        </p>
+        <div class="quote">
+          “El cerebro del niño con TDAH es como un auto muy potente, pero con frenos que aún están en construcción.”
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>¿Cuándo sospechar TDAH?</h3>
+        <p style="font-size:0.9rem;">
+          No basta un síntoma aislado. Hablamos de TDAH cuando los comportamientos son:
+        </p>
+        <ul class="list">
+          <li><strong>Intensos</strong> · Llaman la atención respecto a otros niños de su edad.</li>
+          <li><strong>Persistentes</strong> · Se mantienen por 6 meses o más.</li>
+          <li><strong>En varios contextos</strong> · Casa, escuela, juegos, actividades.</li>
+          <li><strong>Impactan la vida diaria</strong> · Aprendizajes, convivencia, autoestima.</li>
+        </ul>
+        <div class="highlight-box">
+          Ante la duda, siempre es mejor <strong>observar, registrar y consultar a un profesional</strong>
+          en neuropsicología infantil o salud mental infanto-juvenil.
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 2: Bloques del taller -->
+    <section id="bloques" class="section">
+      <!-- Bloque 1 -->
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <div>
+            <span class="icon">👋</span>
+            Bloque 1 · Bienvenida y rompiendo mitos
+            <div class="subtle">Primera mirada al TDAH desde la empatía.</div>
+          </div>
+          <div>
+            <span class="chevron">▶</span>
+          </div>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="badge-time">⏱️ 15 minutos</div>
+            <p style="font-size:0.88rem; margin-top:4px;">
+              Se da la bienvenida a las familias, se presenta el taller y se trabaja con ideas previas
+              a través del juego “Verdadero o Falso” sobre creencias comunes del TDAH.
+            </p>
+            <ul class="list">
+              <li>El TDAH no es culpa de los padres por “no poner límites”.</li>
+              <li>Los niños con TDAH no son menos inteligentes.</li>
+              <li>Es un trastorno real, con base en el cerebro.</li>
+              <li>No es “solo que son movidos” y que “se les pasará con la edad”.</li>
+            </ul>
+            <div class="highlight-box">
+              Mensaje del bloque: <strong>dejar atrás la culpa y los mitos</strong> para abrir espacio
+              a la comprensión y al acompañamiento.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloque 2 -->
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <div>
+            <span class="icon">🔍</span>
+            Bloque 2 · ¿Qué es el TDAH? Señales reales
+            <div class="subtle">Cómo se ve en la vida cotidiana, según la edad.</div>
+          </div>
+          <div>
+            <span class="chevron">▶</span>
+          </div>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="badge-time">⏱️ 20 minutos</div>
+            <p style="font-size:0.88rem;">
+              Se explica el TDAH con la analogía del coche: un motor tipo “Ferrari” con frenos de
+              bicicleta. Mucha energía y capacidad, pero dificultad para frenar, organizar y dirigir.
+            </p>
+            <div class="two-column">
+              <div>
+                <h3>3–6 años · Etapa preescolar</h3>
+                <ul class="list">
+                  <li>Se distrae con cualquier estímulo, “con un suspiro”.</li>
+                  <li>No termina un rompecabezas o actividad antes de cambiar a otra.</li>
+                  <li>Le cuesta esperar turnos, seguir reglas de juego.</li>
+                  <li>Berrinches intensos, explosivos.</li>
+                </ul>
+              </div>
+              <div>
+                <h3>7–12 años · Etapa escolar</h3>
+                <ul class="list">
+                  <li>Pierde útiles, agenda, cuadernos. Olvida tareas.</li>
+                  <li>Parece no escuchar, aunque sí lo hace; su mente se distrae.</li>
+                  <li>Se mueve constantemente, habla mucho, interrumpe.</li>
+                  <li>Se frustra y puede sentirse “malo” por tantas llamadas de atención.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="quote">
+              “Si reconoces estos patrones de forma intensa y constante en varios contextos,
+              es buen momento para buscar ayuda profesional.”
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloque 3 -->
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <div>
+            <span class="icon">🧠</span>
+            Bloque 3 · El cerebro TDAH
+            <div class="subtle">Una explicación sencilla de las bases neuropsicológicas.</div>
+          </div>
+          <div>
+            <span class="chevron">▶</span>
+          </div>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="badge-time">⏱️ 15–20 minutos</div>
+            <p style="font-size:0.88rem;">
+              Se presenta al <strong>Lóbulo Frontal</strong> como el “Director de Orquesta” del cerebro:
+            </p>
+            <ul class="list">
+              <li>Mantiene la atención.</li>
+              <li>Controla los impulsos.</li>
+              <li>Organiza y planifica.</li>
+            </ul>
+            <p style="font-size:0.88rem; margin-top:4px;">
+              Los neurotransmisores (dopamina, noradrenalina) serían los “mensajeros” que llevan
+              instrucciones al resto del cerebro.
+            </p>
+            <div class="highlight-box">
+              En el TDAH, el Director se cansa rápido y los mensajeros no siempre llegan
+              con suficiente fuerza. El resultado es desorden aparente, pero con gran potencial.
+            </div>
+            <p class="subtle">
+              Se realiza además un ejercicio vivencial (dibujar una casa con interrupciones constantes)
+              para que los padres sientan cómo es intentar concentrarse con estímulos que interrumpen.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloque 4 -->
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <div>
+            <span class="icon">🧰</span>
+            Bloque 4 · Herramientas prácticas para casa
+            <div class="subtle">Ser el “andamio” que su hijo necesita mientras su cerebro madura.</div>
+          </div>
+          <div>
+            <span class="chevron">▶</span>
+          </div>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="badge-time">⏱️ 25–30 minutos</div>
+            <p style="font-size:0.88rem;">
+              Se revisan estrategias concretas y realistas para implementar en la rutina diaria.
+            </p>
+            <ul class="list">
+              <li><strong>Estructura y rutinas:</strong> horarios visuales, anticipar cambios, evitar sorpresas.</li>
+              <li><strong>Refuerzo positivo:</strong> elogiar conductas concretas, usar fichas o stickers.</li>
+              <li><strong>Dividir tareas:</strong> bloques cortos de 10–15 minutos con descansos activos.</li>
+              <li><strong>Autorregulación emocional:</strong> nombrar emociones, rincón de calma, respiración.</li>
+              <li><strong>Comunicación efectiva:</strong> frases breves, mirar a los ojos, pedir que repita las instrucciones.</li>
+              <li><strong>Alianza escuela-hogar:</strong> coordinar con docentes, adaptar instrucciones y tiempos.</li>
+            </ul>
+            <div class="tag-list">
+              <span class="tag">Horarios visuales 🗓️</span>
+              <span class="tag">Economía de fichas ⭐</span>
+              <span class="tag">Rincón de la calma 🌿</span>
+              <span class="tag">Checklist de tareas ✅</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloque 5 -->
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <div>
+            <span class="icon">💬</span>
+            Bloque 5 · Cierre y compromiso
+            <div class="subtle">Lo que cada padre decide cambiar desde hoy.</div>
+          </div>
+          <div>
+            <span class="chevron">▶</span>
+          </div>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="badge-time">⏱️ 10 minutos</div>
+            <p style="font-size:0.88rem;">
+              Cada padre escribe en una tarjeta: “Una cosa que voy a hacer diferente en casa
+              para ayudar a mi hijo”.
+            </p>
+            <p style="font-size:0.88rem;">
+              Aquí puedes escribir tu propio compromiso personal. Quedará guardado en este dispositivo.
+            </p>
+            <div class="commit-container">
+              <textarea id="commitInput" placeholder="Ejemplo: 'Voy a usar un tono de voz más calmado cuando le recuerde sus tareas.'"></textarea>
+              <button class="btn-primary" id="saveCommit">
+                💾 Guardar mi compromiso
+              </button>
+              <div id="savedCommit" class="saved-note"></div>
+            </div>
+            <div class="highlight-box" style="margin-top:10px;">
+              Mensaje final para padres:
+              <br />
+              <strong>
+                “Ustedes son el mejor tratamiento para su hijo. No se trata de perfección, sino de
+                presencia, paciencia y comprensión.”
+              </strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección 3: Herramientas para casa -->
+    <section id="herramientas" class="section">
+      <div class="card">
+        <h2>1. Estructura y rutina: el mapa del día 🗺️</h2>
+        <p style="font-size:0.9rem;">
+          Los niños con TDAH se sienten más seguros cuando <strong>saben qué viene después</strong>.
+          La rutina es un contenedor, no una cárcel.
+        </p>
+        <ul class="list">
+          <li>Usa dibujos o pictogramas para mañana, tarde y noche.</li>
+          <li>Anticipa los cambios: “En 5 minutos guardamos los juguetes para cenar”.</li>
+          <li>Evita cambios bruscos y sorpresas sin aviso.</li>
+        </ul>
+        <div class="chips-row">
+          <span class="chip">Rutina visual</span>
+          <span class="chip">Transiciones suaves</span>
+          <span class="chip">Menos peleas, más claridad</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Hablar para que escuche 👂</h2>
+        <h3>Pasos clave</h3>
+        <ul class="list">
+          <li><strong>Conexión:</strong> ponte a su altura, mira a los ojos, toca su hombro.</li>
+          <li><strong>Instrucción clara:</strong> corta, concreta, en positivo.</li>
+          <li><strong>Comprobación:</strong> “¿Me repites qué vas a hacer?”.</li>
+        </ul>
+        <div class="highlight-box">
+          ❌ “Pórtate bien en el supermercado.”<br />
+          ✅ “Quédate al lado del carrito y manos quietas.”
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3. Reforzar lo que sí hace bien 🌱</h2>
+        <p style="font-size:0.9rem;">
+          El cerebro aprende más con el refuerzo positivo que con el castigo repetitivo.
+        </p>
+        <ul class="list">
+          <li>“Pilla” a tu hijo haciendo algo bien y nómbralo: “Me encanta cómo estás jugando tranquilo”.</li>
+          <li>Usa pegatinas/puntos por tareas logradas (cama, mesa, tareas).</li>
+          <li>Canjea puntos por privilegios: elegir la película, tiempo de juego contigo, etc.</li>
+        </ul>
+        <div class="chips-row">
+          <span class="chip">Más elogios concretos</span>
+          <span class="chip">Menos gritos</span>
+          <span class="chip">Autoestima más fuerte</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>4. Tareas y deberes sin lucha de poder 📚</h2>
+        <ul class="list">
+          <li>Elige un rincón de estudio simple, sin demasiados distractores.</li>
+          <li>Divide las tareas largas en “porciones de pizza” (bloques cortos).</li>
+          <li>Tras cada porción, 5 minutos de pausa activa (estirarse, caminar, tomar agua).</li>
+          <li>Usa un checklist simple para que pueda tachar lo que va logrando.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>5. Emociones y calma 🌿</h2>
+        <ul class="list">
+          <li>Ayúdale a poner nombre a lo que siente: “Parece que estás muy frustrado”.</li>
+          <li>Usa recursos como el frasco de la calma, respiración de la tortuga, rincón de calma.</li>
+          <li>Modela autocuidado: si tú gritas todo el tiempo, su cerebro aprende eso.</li>
+        </ul>
+        <div class="quote">
+          A veces, un abrazo, un vaso de agua y 3 respiraciones profundas ayudan más que
+          un sermón de 10 minutos.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>6. Frases clave para recordar 💡</h2>
+        <ul class="list">
+          <li>“Mi hijo no es un problema a resolver, es una persona a acompañar.”</li>
+          <li>“No es desobediencia elegida, es un cerebro que necesita ayuda para organizarse.”</li>
+          <li>“Cuando yo me calmo, su cerebro también tiene más posibilidades de calmarse.”</li>
+          <li>“No estoy solo/a; pedir ayuda es un acto de amor, no de fracaso.”</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <div class="credits">
+        <span>
+          👥 <strong>Taller para Padres – TDAH</strong>
+        </span>
+        <span>
+          🧑‍⚕️ Dirigido por:
+          <strong>Lic. Jennifer Morillo</strong> &amp;
+          <strong>Lic. Gonzalo Buendía – Neuropsicología Infantil</strong>
+        </span>
+      </div>
+      <span>📅 Versión demo para acompañar el taller presencial.</span>
+    </footer>
+  </div>
+
+  <script>
+    // Navegación principal
+    const navButtons = document.querySelectorAll(".nav button");
+    const sections = document.querySelectorAll(".section");
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-section");
+
+        navButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        sections.forEach((sec) => {
+          sec.classList.toggle("active", sec.id === target);
+        });
+      });
+    });
+
+    // Acordeón
+    const accordionItems = document.querySelectorAll(".accordion-item");
+
+    accordionItems.forEach((item) => {
+      const header = item.querySelector(".accordion-header");
+      const body = item.querySelector(".accordion-body");
+
+      header.addEventListener("click", () => {
+        const isOpen = item.classList.contains("open");
+        accordionItems.forEach((other) => {
+          other.classList.remove("open");
+          const otherBody = other.querySelector(".accordion-body");
+          if (otherBody) otherBody.style.maxHeight = null;
+        });
+
+        if (!isOpen) {
+          item.classList.add("open");
+          body.style.maxHeight = body.scrollHeight + "px";
+        }
+      });
+    });
+
+    // Compromiso interactivo con localStorage
+    const commitInput = document.getElementById("commitInput");
+    const saveCommitBtn = document.getElementById("saveCommit");
+    const savedCommit = document.getElementById("savedCommit");
+    const STORAGE_KEY = "compromiso_taller_tdah";
+
+    function loadCommitment() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        commitInput.value = stored;
+        savedCommit.innerHTML =
+          "Compromiso guardado en este dispositivo: <strong>" +
+          stored +
+          "</strong>";
+      } else {
+        savedCommit.textContent =
+          "Escribe tu compromiso y guárdalo. Solo se guardará en este dispositivo.";
+      }
+    }
+
+    saveCommitBtn.addEventListener("click", () => {
+      const text = commitInput.value.trim();
+      if (!text) {
+        savedCommit.textContent = "Escribe primero tu compromiso antes de guardar.";
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY, text);
+      savedCommit.innerHTML =
+        "Compromiso guardado en este dispositivo: <strong>" +
+        text +
+        "</strong>";
+    });
+
+    loadCommitment();
+
+    // Ajustar altura del acordeón si se cambia de tamaño la ventana
+    window.addEventListener("resize", () => {
+      document.querySelectorAll(".accordion-item.open .accordion-body").forEach((body) => {
+        body.style.maxHeight = body.scrollHeight + "px";
+      });
+    });
+  </script>
+</body>
+</html>
